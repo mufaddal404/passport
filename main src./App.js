@@ -6,6 +6,7 @@ import DataDisplay from './DataDisplay';
 import imageData from './data';
 import DetectRTC from 'detectrtc';
 import Webcam from 'react-webcam';
+import Home from './Home';
 
 function App() {
 
@@ -17,11 +18,7 @@ function App() {
 
   if(screen === 'default'){
     return ( 
-      <div className='main'>
-        <button className='btn' onClick={() => setScreen('cam')} >Use Cam</button>
-        <p>Or</p>
-        <button className="btn" onClick={() => setScreen('upload')} >Upload</button>
-      </div>
+      <Home  setScreen={setScreen} />
     );
   }
   else if(screen === 'cam'){
@@ -47,7 +44,7 @@ function App() {
   }
   else if(screen === 'upload'){
     return(
-      <UploadImage setScreen={setScreen} />
+      <UploadImage setImage={setImage} image={image} setScreen={setScreen} setResponse={setResponse} setError={setError} />
     )
   }
 }

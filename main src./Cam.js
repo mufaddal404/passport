@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import WebcamCapture from "./WebcamCapture";
 import axios from "axios";
 import DetectRTC from "detectrtc";
+import request_url from "./requestUrl";
 
 const Cam = ({setImage, setScreen, image, setResponse, setError}) => {
     const [capture, setCapture] = useState(false);
@@ -29,7 +30,7 @@ const Cam = ({setImage, setScreen, image, setResponse, setError}) => {
 
             axios({
                 method: 'post',
-                url: 'http://192.168.0.21:8000/api/image',
+                url: request_url,
                 headers: {'Content-Type': 'multipart/form-data'},
                 data: formData
             })
@@ -74,7 +75,7 @@ const Cam = ({setImage, setScreen, image, setResponse, setError}) => {
     }
 
     return(
-        <div className="main camwindow">
+        <div className="main flex flex-column justify-end pos-rel">
             {capture ? <Pop /> : null}
             <WebcamCapture setImage={setImage} setScreen={setScreen} setCapture={setCapture} />
             <button className="btn" onClick={() => setScreen('default')}>Back</button>

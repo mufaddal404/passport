@@ -1,12 +1,16 @@
 import {useRef, useState, useEffect} from 'react';
 import axios from 'axios';
+import request_url from "./requestUrl";
 
-const UploadImage = ({setScreen}) => {
+const UploadImage = ({setImage, setScreen, image, setResponse, setError}) => {
 
-    const [response, setResponse] = useState(null);
-    const [selectedFile, setSelectedFile] = useState('');
+    const [view, setView] = useState(false);
+    const [onSubmit, setOnSubmit] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
     const [emoji, setEmoji] = useState(null);
     const intervalRef = useRef();
+    //const imgRef = useRef();
+    
 
     const emojis = ["🕐", "🕜", "🕑","🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡", "🕖", "🕢",  "🕗", "🕣", "🕘", "🕤", "🕙",  "🕥", "🕚", "🕦",  "🕛", "🕧"];
     const interval = 125;
@@ -14,6 +18,7 @@ const UploadImage = ({setScreen}) => {
     // const [check, setCheck] = useState('Hello!');
 
     const submitForm = () => {
+        setOnSubmit(true);
         setResponse(null);
         loadEmoji(emojis);
         const formData = new FormData();
@@ -22,19 +27,24 @@ const UploadImage = ({setScreen}) => {
   
         axios({
             method: 'post',
-            url: 'http://192.168.0.16:8000/api/image',
+            url: request_url,
             headers: {'Content-Type': 'multipart/form-data'},
             data: formData
         })
         .then((response) => {
             setResponse(response.data);
+            setError(false);
             clearInterval(intervalRef.current);
             setEmoji(null)
+            setScreen('datapane');
             console.log(response);
         })
         .catch((error) => {
+            setResponse(error);
             clearInterval(intervalRef.current);
-            setEmoji(null)
+            setEmoji(null);
+            setError(true);
+            setScreen('datapane');
             console.log(error);
         });
     }
@@ -42,6 +52,10 @@ const UploadImage = ({setScreen}) => {
     const handleFileInput = (e) => {
         // handle validations
         setSelectedFile(e.target.files[0])
+        setImage(URL.createObjectURL(e.target.files[0]));
+        // imgRef.current.onload = () => {
+        //     URL.revokeObjectURL(imgRef.current.src) // free memory
+        // }
     }
 
     const loadEmoji = (arr) => {
@@ -52,43 +66,40 @@ const UploadImage = ({setScreen}) => {
     }
 
     return(
-        <div className="App">
-
-            <input type="file" onChange={handleFileInput}/>
-
-            <button onClick={submitForm}>Submit</button>
-            <br/>
-            <div className="preload">
+        <div className="main flex flex-column pos-rel">
+            <div>
+                <input className="file" type="file" onChange={handleFileInput}/>
+            </div>
+            {
+                selectedFile ?
+                <div className="view-img" onClick={() => setView(!view)}>
+                {
+                    view ?
+                    'Hide Image':
+                    'View Image'
+                }
+                </div>
+                : null
+            }
+            {
+                view ?
+                <div>
+                    <img src={image} alt="show" />
+                </div> :
+                null
+            }
+            {onSubmit ?
+            <div className="container">
                 <div className="emoji" ref={intervalRef}>{emoji}</div>
             </div>
-
-            {response && <Display data={response} />}
-            <button className='btn' onClick={() => setScreen('default')}>Back to Home</button>
+            : null
+            }
+            <div>
+                <button className="btn" onClick={submitForm}>Submit</button>
+                <button className='btn' onClick={() => setScreen('default')}>Back</button>
+            </div>
         </div>
     )
-}
-
-const Display = (props) => {
-
-    const {CNIC_number, country, date_of_birth, expiration_date, name, surname, mrz_code, mrz_type, nationality, number, sex} = props.data
-
-    return(
-        <div>
-            <p>
-                Country: {country}<br/>
-                Date of Birth: {date_of_birth}<br/>
-                CNIC: {CNIC_number}<br/>
-                Expiration Date: {expiration_date}<br/>
-                Name: {name}<br/>
-                Surname: {surname}<br/>
-                MRZ Code: {mrz_code}<br/>
-                MRZ Type: {mrz_type}<br/>
-                Nationality: {nationality}<br/>
-                Number: {number}<br/>
-                Sex: {sex}<br/>
-            </p>
-        </div>
-    );
 }
 
 export default UploadImage;
