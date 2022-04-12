@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import WebcamCapture from "./WebcamCapture";
 import axios from "axios";
+import DetectRTC from "detectrtc";
 
 const Cam = ({setImage, setScreen, image, setResponse, setError}) => {
     const [capture, setCapture] = useState(false);
@@ -13,7 +14,11 @@ const Cam = ({setImage, setScreen, image, setResponse, setError}) => {
         const emojis = ["🕐", "🕜", "🕑","🕝", "🕒", "🕞", "🕓", "🕟", "🕔", "🕠", "🕕", "🕡", "🕖", "🕢",  "🕗", "🕣", "🕘", "🕤", "🕙",  "🕥", "🕚", "🕦",  "🕛", "🕧"];
         const interval = 75;
         
-        const blob = b64toBlob(image, 'image/jpeg')
+        const blob = null;
+        if (image !== '' || image !== null) {
+            const imageStr = image.split(',')[1];
+            blob = b64toBlob(imageStr, 'image/jpeg')
+        }
 
         const sendImage = () => {
             setResponse(null);
